@@ -7,7 +7,7 @@
     <meta name="keywords" content="早稲田大学,waseda,早稲田,早大,ショパンの会,ショパン,音楽サークル,Chopin,クラシック,ピアノ,サークル">
     <link rel="stylesheet" href="css/pc_style.css" type="text/css" media="screen and (min-width: 1080px)">
     <link rel="stylesheet" href="css/sp_style.css" type="text/css" media="screen and (max-width: 1079px)">
-    <link rel="shortcut icon" href="img/icon.gif" type="image/gif">
+    <link rel="shortcut icon" href="img/icon.png">
     <meta name="Author" content="Yasuhide Matsumoto">
     <meta name="copyright" content="Copyright (C) Waseda University Chopin Association all rights reserved">
 </head>
@@ -31,7 +31,7 @@
         <!-- カテゴリーをインクルード -->
         <div id="category"></div>
 
-        <div id=“link”></div>
+        <div id="link"></div>
 
         <!-- フッターをインクルード -->
         <div id="footer"></div>
@@ -66,8 +66,13 @@
             .then(data => document.getElementById('category').innerHTML = data);
 
         fetch('link.html')
-            .then(response => response.text())
-            .then(data => document.getElementById('link').innerHTML = data);
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('content').innerHTML = data;
+        })
+        .catch(error => {
+            console.error('Error fetching link.html:', error);
+        });
 
         fetch('footer.html')
             .then(response => response.text())
@@ -79,6 +84,5 @@
                 d1.insertAdjacentHTML('beforeend', 'Yuya Takizawa');
             });
     </script>
-
 </body>
 </html>

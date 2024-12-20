@@ -18,195 +18,6 @@ address{
 	font-style: normal;
 }
 
-/*header
-#pc_header{
-	width: 98%;
-	text-align: center;
-	margin:5px 1%;
-	min-width: 1020px;
-	padding:0 auto;
-}
-
-#sp_header{
-	display:none;
-}
-
-.inner{
-	width: 80%;
-	height: 75px;
-	margin: 0 auto;
-}
-
-.inner p{
-	margin:8px auto;
-}
-
-.logo{
-	float: left;
-	text-align: left;
-	font-size: 20px;
-	line-height: 1.5em;
-}
-
-.big_font{
-	font-size: 35px;
-}*/
-
-/*footer
-.footer_content{
-	text-align: center;
-}
-
-.info{
-	float: right;
-	text-align: left;
-}
-
-.wrapper{
-	width: auto;
-	margin: 0 auto;
-	padding: 10px;
-	overflow:hidden;
-}
-
-#top_table{
-	z-index: 1;
-	margin: 0 auto;
-	width: 80%;
-	border-collapse: collapse;
-}
-
-#top_table td{
-	position: relative;
-	width: 15%;
-	height:60px;
-	border:black solid 2px;
-	background-color: #990000;
-	font-size: 20px;
-}
-
-#top_table a{
-	padding-top: 17px;
-	display: block;
-	height: 100%;
-	width: 100%;
-	color: #FFFFFF;
-	text-decoration: none;
-	letter-spacing: 1px;
-	font-family: 'Gill Sans';
-	font-size: 24px;
-}
-
-#top_table a:hover{
-	color:red;
-	background-color:#f39a9a;
-	transition: color 0.5s,background-color 0.5s;
-}*/
-
-/*gallery
-#full img{
-	width: 80%;
-	margin: 15px 5px 15px 100px;
-}*/
-
-/*twitter
-#timeline{
-	width: 45%;
-}
-
-#category{
-	display: none;
-}
-
-#twitter_title{
-	margin-bottom: 15px
-}
-*/
-/*共通部分
-.contents{
-	margin: 10px auto;	
-	padding-bottom: 5px;
-	padding-top: 2px;
-	width: 75%;
-}
-
-.contact{
-	font-size: 18px;
-	text-align: center;
-}
-
-.txt{
-	display: inline-block;
-	text-align: left;
-}
-
-.sentence{
-	font-size: 21px;
-	line-height: 1.8em;
-}
-
-.main_title{
-	font-size: 32px;
-	border-bottom: inset 7px #dc143c;
-	margin: 15px 0 auto;
-}
-
-.page_title{
-	z-index: 1;
-	width: 75%;
-	margin-left:11%;
-	text-align: left;
-	padding-left: 10px;
-	font-size: 50px;
-	border-bottom: inset 7px deeppink;
-	border-left:inset 4px #e42385;
-	margin-bottom: 20px;
-	margin-top: 5px;
-	background-color: oldlace;
-	position: relative;
-	letter-spacing: 2px;
-	text-shadow: 3px 3px 0 rgba(0,0,0,0.3),
-	0px 7px 7px rgba(0,0,0,0.15),
-    0px 5px 5px rgba(0,0,0,0.1);
-}
-
-.page_title:after{
-	z-index: 1;
-	border-left: 26px solid deeppink;
-	border-top: 29px solid transparent;
-	border-bottom: 29px solid transparent;
-	content: "";
-	position: absolute;
-	left: 82%;
-	top: 0;
-	margin-left: 18%;
-}
-
-.image_inserted{
-	margin-top: 15px;
-	text-align: center;
-}
-
-.image_inserted img{
-	width: 80%;
-}
-
-.flex_contents{
-	width: 80%;
-	margin: 0 auto;
-	display: flex;
-}
-*/
-/*news
-#news{
-	width: 45%;
-}
-
-#news li{
-	font-size: 20px;
-	text-align: left;
-}*/
-
 /*イントロダクション*/
 
 .timetable{ 
@@ -289,131 +100,9 @@ address{
 }
 
 /*link*/
-.links li{
-	list-style-type: none;
-	font-size: 20px;
-}
 
-/*member
-.members{
-	font-size: 16px;
-	width: 96%;
-	margin: 10px;
-}
 
-.member_title{
-	font-size: 28px;
-	border-bottom: solid 4px purple;
-}
-
-.member_detail{
-	margin: 0 auto;
-	width: 98%;
-}
-
-.detail{
-	display: flex;
-}
-
-.member_sentence p{
-	line-height: 1.5em;
-}
-
-.member_sentence td{
-	font-size: 16px;
-	text-align: center;
-	padding:0.2em 1em;
-}
-
-.member_intro{
-	width:73%;
-	margin:10px;
-}
-
-.member_img{
-	width:25%;
-	margin:10px auto;
-	margin-top: 50px;
-}
-
-.member_img img{
-	width:90%;
-	display:inline-block;
-	vertical-align: middle;
-}
-
-#Yasuhide{
-	font-family: 'Times New Roman', Times, serif;
-}
-#Sousei{
-	border-bottom: solid 4px red;
-}
-#Shoshin{
-	border-bottom: solid 4px black;
-}
-#Tamano{
-	border-bottom: solid 4px white;
-}
-#Yuuka{
-	border-bottom: dashed 2px black;
-}
-#Takashi{
-	border-bottom: dotted 4px #00afcc;
-	font-family: 'Times New Roman', Times, serif;
-}
-#Naomi{
-	border-bottom: solid 4px pink;
-}
-#Anna{
-	border-bottom: solid 4px red;
-}
-#Daichi{
-	border-bottom: solid 4px red;
-}
-#Fuuka{
-	border-bottom: solid 4px green;
-}
-#Shinichiro{
-	border-bottom: dashed 4px yellow;
-}
-#Gen{
-	border-bottom: solid 4px darkred;
-}
-#Rena{
-	border-bottom: double 4px #f05187;
-}
-#Lisa{
-	border-bottom: solid 4px pink;
-}
-#Takahisa{
-
-}
-#Tomoki{
-	border-bottom: solid 4px yellow;
-}
-#Michika{
-	border-bottom: solid 4px red;
-}
-#Sora{
-	border-bottom: solid 4px skyblue;
-}
-#Sho{
-	
-}
-#Masaki{
-	border-bottom: solid 4px green;
-}
-#Tsubasa{
-	border-bottom: solid 4px blue;
-}
-#Takuji{
-	border-bottom: solid 4px #b76e79;
-}
-#William{
-	border-bottom: solid 4px black;
-}
-
-.grade_title{
+.link_title{
 	cursor: pointer;
 	height: 1.5em;
 	font-size: 25px;
@@ -421,8 +110,8 @@ address{
 	0px 7px 7px rgba(0,0,0,0.15),
     0px 5px 5px rgba(0,0,0,0.1);
     letter-spacing: 2px;
-	margin: 10px 1px;
-	width: 100%;
+	margin: 10px auto;
+	width: 75%;
 	vertical-align: middle;
 	padding-left: 5px;
 	box-shadow:4px 4px 5px rgba(0,0,0,0.3);
@@ -431,18 +120,38 @@ address{
 	border-left: solid 3px #dc143c;
 }
 
-#grade1{
-	border-left: solid 4px #5fff19;
+.discription{
+	width: 80%;
+	margin: 10px auto;
+	font-size: 20px;
+	line-height: 1.8em;
 }
 
-#grade2{
-	border-left: solid 4px deeppink;
+.link_contents{
+	font-size: 20px;
+	width: 75%;
+	margin: 10px auto;
 }
 
-#grade3{
-	border-left: solid 4px #00fffc;
+.link_contents table{
+	margin: 10px auto;
 }
 
-#grade4{
-	border-left: solid 4px #ffca18;
-}*/
+.link_contents th{
+	background-color: #ffd3e1; 
+	box-shadow:3px 3px 4px rgba(0,0,0,0.2);
+	margin:3px;
+	margin-top: 5px;
+	padding-left: 10px;
+	text-align: center;
+	width: 80%;
+}
+
+.link_contents td{
+	border:solid 5px #ffe4e1;
+	background-color: cornsilk;
+	box-shadow:3px 3px 4px rgba(0,0,0,0.2);
+}
+
+
+
