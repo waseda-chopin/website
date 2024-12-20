@@ -1,0 +1,447 @@
+@charset "utf-8";
+/* 共通項目 */
+
+body{
+	font-family:"メイリオ" , Meiryo , "ＭＳ Ｐゴシック" , "MS PGothic" , Arial, sans-serif;
+	margin: 0 auto;
+	padding: 0 auto;
+}
+div{
+	padding: 0 auto;
+}
+
+p{
+	line-height: 1.5em;
+}
+
+a{
+	color: #dc143c;
+	text-decoration: none;
+}
+
+address{
+	font-style: normal;
+}
+
+/*header*/
+.wrapper {
+	background-color: #ffe4e1; 
+	width: auto;
+	margin: 0 auto;
+	padding: 4px;
+}
+
+.header_content{
+	padding: 0 auto;
+	margin: 2px;
+	border-bottom: solid 2px #ffffff;
+}
+
+#pc_header{
+	display: none;
+}
+
+#clear{
+	clear: both;
+}
+
+#chopin_logo{
+	width: 37%;
+	height: 50px;
+	float: left;
+	margin:0 auto;
+}
+
+#chopin_logo img{
+	height:37px;
+}
+
+#menu{
+	height: 50px;
+	float: right;
+	margin:0 auto;
+	position: relative;
+}
+#menu img{
+	width: 100px;
+	position: absolute; right: 0px; top: 0px;
+	z-index: 2;
+}
+#menu2{
+	height: 50px;
+	float: right;
+	margin:0 auto;
+	position: fixed; right: 4px;
+}
+#menu2 img{
+	width: 100px;
+	position: absolute; right: 2px; top: 0px;
+	z-index: 2;
+}
+
+.menu_titles{
+	display: none;
+	position: relative;
+	z-index: 2;
+	background-color: #fffafa;
+	border: outset 4px #fffaf0;
+	list-style: none;
+	padding-left:0px;
+	margin-top: 19px;
+}
+.menu_titles li{
+	line-height: 1.6em; 
+	margin-top: 3px;
+	margin-bottom: 3px;
+	border: outset 2px #f5f5dc;
+	font-size: 24px;
+	padding-left: 5px;
+	padding-right: 5px;
+	letter-spacing: 2px;
+	text-shadow: 2px 2px 0 rgba(0,0,0,0.3),
+	0px 5px 5px rgba(0,0,0,0.15),
+    0px 3px 3px rgba(0,0,0,0.1);
+}
+
+/*twitter*/
+#timeline{
+	display:none;
+}
+
+/*common*/
+.page_title{
+	z-index: 1;
+	width: 90%;
+	margin-left: 8%;
+	text-align: right;
+	font-size: 30px;
+	border-bottom: inset 7px deeppink;
+	border-right:inset 4px #e42385;
+	margin-bottom: 20px;
+	margin-top: 5px;
+	padding-right: 3px;
+	background-color: oldlace;
+	position: relative;
+	letter-spacing: 2px;
+	text-shadow: 3px 3px 0 rgba(0,0,0,0.3),
+	0px 7px 7px rgba(0,0,0,0.15),
+    0px 5px 5px rgba(0,0,0,0.1);
+}
+.page_title:after{
+	z-index: 1;
+	border-right: 26px solid deeppink;
+	border-top: 26px solid transparent;
+	border-bottom: 26px solid transparent;
+	content: "";
+	position: absolute;
+	right: 82%;
+	top: 0;
+	margin-right: 18%;
+}
+
+
+.contents{
+	padding-bottom: 5px;
+	padding-top: 2px;
+}
+.contents a{
+	color: #dc143c;
+	text-decoration: none;
+}
+.contents p{
+	padding: 4px;
+}
+.contents img{
+	width: 100%;
+}
+
+.contact{
+	text-align: center;
+}
+
+.txt{
+	display: inline-block;
+	text-align: left;
+}
+
+.content_title{
+	font-size: 30px;
+	border-bottom: inset 7px #dc143c;
+	border-left: inset 4px #dc1407;
+	margin: auto;
+	padding-left: 3px;
+	background-color: oldlace;
+}
+.image_inserted{
+	margin-top: 8px;
+}
+.image_inserted img{
+	width: 100%;
+}
+
+/*main_contents*/
+.main_title{
+	font-size: 30px;
+	font-weight: normal;
+	border-bottom: inset 7px #dc143c;
+	border-left: inset 4px #dc1407;
+	margin: auto;
+	padding-left: 3px;
+	background-color: oldlace;
+}
+
+#top_image{
+	margin-top: 5px;
+	height: auto;
+	margin-bottom: -20px;
+}
+#top_image img{
+	width: 100%;
+}
+
+#greeting{
+	margin-top: 5px;
+	background-color: #ffffe4;
+	border: outset 2px #fffacd;
+}
+
+#greeting_title{
+	background-color: #ffffff00;
+}
+
+#news{
+	margin-top: 22px;
+	background-color: #edffff;
+	border: outset 2px #daffff;
+	padding-right: 5px;
+}
+#news_title{
+	background-color: #ffffff00;
+}
+
+#category{
+	margin-top: 22px;
+	background-color: #fffafa;
+	border: outset 2px #fffaf0;
+}
+#category_title{
+	background-color: #ffffff00;
+}
+
+.small_title{
+	height: 1.5em;
+	font-size: 25px;
+	text-shadow: 2px 2px 0 rgba(0,0,0,0.3),
+	0px 7px 7px rgba(0,0,0,0.15),
+    0px 5px 5px rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+	margin: 8px auto;
+	vertical-align: middle;
+	padding-left: 5px;
+	box-shadow:4px 4px 5px rgba(0,0,0,0.3);
+	background-color: cornsilk;
+	border: solid 2px #eee8aa;
+	border-left: solid 3px deeppink;
+}
+
+/*concert*/
+.concert_title{
+	height: 1.5em;
+	font-size: 25px;
+	text-shadow: 2px 2px 0 rgba(0,0,0,0.3),
+	0px 7px 7px rgba(0,0,0,0.15),
+    0px 5px 5px rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+	margin: 8px auto;
+	vertical-align: middle;
+	padding-left: 5px;
+	box-shadow:4px 4px 5px rgba(0,0,0,0.3);
+	background-color: cornsilk;
+	border: solid 2px #eee8aa;
+	border-left: solid 3px #dc143c;
+}
+
+.concert_sentence{
+	border-left: inset 4px deeppink;
+	margin-top: 5px;
+	background-color: #ffffed;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.concert_contents{
+	font-size: 15px;
+}
+
+.concert_contents th{
+	background-color: #ffd3e1; 
+	box-shadow:3px 3px 4px rgba(0,0,0,0.2);
+	margin:3px;
+	margin-top: 5px;
+}
+.concert_contents td{
+	border:solid 5px #fffaf0;
+	background-color: cornsilk;
+	box-shadow:3px 3px 4px rgba(0,0,0,0.2);
+}
+
+/*schedule*/
+.timetable{
+	text-align: center;
+	margin:7px auto 5px;
+}
+
+.timetable td{
+	border: solid 2px rgb(255, 100, 0);
+}
+
+/*member*/
+.members{
+	font-size: 16px;
+	width: 96%;
+	margin: 10px;
+}
+
+.member_title{
+	font-size: 28px;
+	border-bottom: solid 3px purple;
+}
+
+.member_detail{
+	margin: 0 auto;
+	width: 98%;
+}
+
+.detail{
+	display: inline-flex;
+}
+
+.member_intro{
+	width:73%;
+	margin:10px;
+}
+
+.member_sentence p{
+	line-height: normal;
+	font-size: 14px;
+}
+
+.member_sentence td{
+	font-size: 14px;
+	text-align: center;
+	padding:0.2em 1em;
+}
+
+.member_img{
+	padding-top: 10%;
+	width:25%;
+}
+
+.member_img img{
+	width:90%;
+	display:inline-block;
+	vertical-align: middle;
+}
+
+#Yasuhide{
+	font-family: 'Times New Roman', Times, serif;
+}
+#Sousei{
+	border-bottom: solid 3px red;
+}
+#Shoshin{
+	border-bottom: solid 3px black;
+}
+#Tamano{
+	border-bottom: solid 3px white;
+}
+#Yuuka{
+	border-bottom: dashed 2px black;
+}
+#Takashi{
+	border-bottom: dotted 3px #00afcc;
+	font-family: 'Times New Roman', Times, serif;
+}
+#Naomi{
+	border-bottom: solid 3px pink;
+}
+#Anna{
+	border-bottom: solid 3px red;
+}
+#Daichi{
+	border-bottom: solid 3px red;
+}
+#Fuuka{
+	border-bottom: solid 3px green;
+}
+#Shinichiro{
+	border-bottom: dashed 3px yellow;
+}
+#Gen{
+	border-bottom: solid 3px darkred;
+}
+#Rena{
+	border-bottom: double 4px #f05187;
+}
+#Lisa{
+	border-bottom: solid 3px pink;
+}
+#Takahisa{
+
+}
+#Tomoki{
+	border-bottom: solid 3px yellow;
+}
+#Michika{
+	border-bottom: solid 3px red;
+}
+#Sora{
+	border-bottom: solid 3px skyblue;
+}
+#Sho{
+
+}
+#Masaki{
+	border-bottom: solid 3px green;
+}
+#Tsubasa{
+	border-bottom: solid 3px blue;
+}
+#Takuji{
+	border-bottom: solid 3px #b76e79;
+}
+#William{
+	border-bottom: solid 3px black;
+}
+
+.grade_title{
+	height: 1.5em;
+	font-size: 25px;
+	text-shadow: 2px 2px 0 rgba(0,0,0,0.3),
+	0px 7px 7px rgba(0,0,0,0.15),
+    0px 5px 5px rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+	margin: 8px auto;
+	vertical-align: middle;
+	padding-left: 5px;
+	box-shadow:4px 4px 5px rgba(0,0,0,0.3);
+	background-color: cornsilk;
+	border: solid 2px #eee8aa;
+	border-left: solid 3px #dc143c;
+}
+
+#grade1{
+	border-left: solid 3px green;
+}
+
+#grade2{
+	border-left: solid 3px deeppink;
+}
+
+#grade3{
+	border-left: solid 3px lightblue;
+}
+
+#grade4{
+	border-left: solid 3px orange;
+}
