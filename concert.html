@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>Concert</title>
+        <meta name="discription" content="概要">
+        <link rel="stylesheet" href="css/style.css"></link>
+        <link rel="stylesheet" href="css/component.css"></link>
+        
+    </head>
+
+    <body>
+        <div id="header"></div>
+        <h2>Concert</h2>
+
+        <p>只今準備中です。2023年度以前のプログラムについては<a href="https://www.waseda-chopin.com/concerts.php" style="color: black;"><b>旧サイト</b></a>をご覧ください。</p>
+
+
+        <div id="footer"></div>
+        <script>
+            fetch("pc-header.html")
+            .then((response) => response.text())
+            .then((data) => document.querySelector("#header").innerHTML = data);
+
+            fetch("footer.html")
+            .then((response) => response.text())
+            .then((data) => {
+                const footer = document.querySelector("#footer");
+                if (footer) {
+                    footer.innerHTML = data;
+                } else {
+                    console.error("要素 #footer が見つかりません。");
+                }
+            })
+            .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
+        </script>
+    </body>
+</html>

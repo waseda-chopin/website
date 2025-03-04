@@ -1,0 +1,42 @@
+@charset "UTF-8";
+
+hr {
+    display:block;
+    flex: 1;
+    height: 1px;
+    width: auto; /* 明示的に設定 */
+}
+
+
+li{
+    margin-left:30px;
+    font-size:20px;
+}
+.introfield {
+    display: flex;
+    }
+.introcontents{
+    width:80%;
+    border-left: 1px solid gray;
+    padding:30px;
+    
+}
+.tree{
+    width:35%;
+}
+
+
+.index{
+    display:flex;
+    align-items: center;
+    margin-bottom:20px;
+}
+.introindex{
+    color:red;
+    text-align:center;
+    font-size:25px;
+}
+
+.src{
+    align-items:center;
+}

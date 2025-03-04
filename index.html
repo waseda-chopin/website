@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>早稲田大学ショパンの会</title>
+        <meta name="discription" content="早稲田大学ショパンの会の公式サイトです！">
+        <link rel="stylesheet" href="css/style.css"></link>
+    </head>
+
+    <body>
+        <div id="header-container"></div>
+        <h2>ご挨拶</h2>
+        
+        <p>こんにちは！早稲田大学ショパンの会の公式サイトへようこそ！</p>
+        <p>当サークルは会員の演奏レベルや所属大学を問わず，音楽に触れる喜びを共有することを目的としたピアノサークルです。このWebサイトは当サークルに関する様々な情報やコンサートプログラムの紹介を目的としています。</p>
+
+        <div class="field">
+            <div class="article">
+                <h3>新着情報</h3>
+                <li>卒業演奏会</li>
+                <p>3/9(日)に2024年度卒業演奏会を行います！<br>
+                    場所：加賀町ホール(新宿区加賀町2丁目5-26)</p>
+
+                <li>次の例会</li>
+                <p>次の例会は3月2日、15:00〜18:00にPAPAGENO中井で行います！興味がある方は各種SNSでのメッセージかメールでお気軽にご連絡ください！<br>
+                パパゲーノ中井：新宿区中井2丁目1-28大ビル4F</p>
+            </div>
+            <div class="article">
+                <h3>入会について</h3>
+                <p>入会したい場合は当サークルのメールアドレスへの連絡やSNSアカウントへのダイレクトメッセージでお伝えください。<br>
+                会費や演奏会についてはIntroductionに記載しておりますのでそちらを参照してください。</p>
+            </div>
+        </div>
+
+        <div class="article" id="shinkan">
+            <h3>2025年度新歓について</h3>
+            <li>新歓ブースについて</li>
+            <p>4月1日(火)〜4月4日(金)の間、新歓ブースを設置します！場所は分かり次第追記します。<br>
+                当サークルについて聞きたいことがある人は遠慮なく来てください！
+            </p>
+            <li>例会</li>
+            <p>4月の例会を4/13(日)15:00〜18:00に行います！<br>
+                実際の例会の雰囲気を感じたり新入生同士で交流してもらえれば幸いです。
+            </p>
+        </div>
+        <div id="footer"></div>
+        
+
+        <script>
+
+        const isMobile = window.innerWidth <= 768;
+        const headerFile = isMobile ? 'phone-header.html' : 'pc-header.html';
+
+        // ヘッダーを読み込んで挿入
+        fetch(headerFile)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            })
+            .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
+
+            function loadHeader() {
+                const timestamp = new Date().getTime(); // キャッシュ防止用のタイムスタンプ
+                const headerFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
+                
+                fetch(`${headerFile}?v=${timestamp}`)  // キャッシュ対策
+                    .then((response) => response.text())
+                    .then((data) => document.querySelector("#header").innerHTML = data);
+            }
+
+            // 初回ロード時にヘッダーを読み込む
+            loadHeader();
+
+            // 画面サイズ変更時にヘッダーを再読み込み（iOSの回転対応）
+            window.addEventListener("resize", loadHeader);
+            window.addEventListener("orientationchange", loadHeader);
+
+
+
+
+
+            fetch("footer.html")
+            .then((response) => response.text())
+            .then((data) => {
+                const footer = document.querySelector("#footer");
+                if (footer) {
+                    footer.innerHTML = data;
+                } else {
+                    console.error("要素 #footer が見つかりません。");
+                }
+            })
+            .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
+        </script>
+        </body>
+</html>
