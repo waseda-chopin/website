@@ -235,6 +235,7 @@ li{font-size:30px;
   .navtext-container {
     width: 100%;
     height: 52px;
+    background-color:#CC4646;
     position: absolute;
     box-sizing: border-box;
     display: flex;
