@@ -12,6 +12,12 @@ table{
     background-color: #CC4646;
     color:white
 }
+
+img {
+    width: 90%;
+    height: auto; /* 高さを自動に設定し、画像の縦横比を保つ */
+}
+
 th {
     text-size-adjust:30px;
     height:30px;
