@@ -19,11 +19,9 @@
         <div class="field">
             <div class="article">
                 <h3>新着情報</h3>
-                <li>次回演奏会</li>
-                <p>次回の演奏会は卒業演奏会です！場所や時間は後ほど掲載します。</p>
-
-                <li>次の例会</li>
-                <p>次の例会は2/1(火)、15:00〜18:00に行います！興味がある方は各種SNSでのメッセージかメールでお気軽にご連絡ください！</p>
+                <div id="news-container">
+                    <p>読み込み中...</p>
+                </div>
             </div>
             <div class="article">
                 <h3>入会について</h3>
@@ -35,17 +33,18 @@
         
 
         <script>
+            // --- 既存のヘッダー読み込み処理 ---
+            const isMobile = window.innerWidth <= 768;
+            const headerFile = isMobile ? 'phone-header.html' : 'pc-header.html';
 
-        const isMobile = window.innerWidth <= 768;
-        const headerFile = isMobile ? 'phone-header.html' : 'pc-header.html';
-
-        // ヘッダーを読み込んで挿入
-        fetch(headerFile)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-container').innerHTML = data;
-            })
-            .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
+            // ヘッダーを読み込んで挿入
+            fetch(headerFile)
+                .then(response => response.text())
+                .then(data => {
+                    const container = document.getElementById('header-container');
+                    if (container) container.innerHTML = data;
+                })
+                .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
 
             function loadHeader() {
                 const timestamp = new Date().getTime(); // キャッシュ防止用のタイムスタンプ
@@ -53,7 +52,11 @@
                 
                 fetch(`${headerFile}?v=${timestamp}`)  // キャッシュ対策
                     .then((response) => response.text())
-                    .then((data) => document.querySelector("#header").innerHTML = data);
+                    .then((data) => {
+                        // 元のコードに合わせて #header を探しますが、なければ #header-container に入れます
+                        const header = document.querySelector("#header") || document.querySelector("#header-container");
+                        if (header) header.innerHTML = data;
+                    });
             }
 
             // 初回ロード時にヘッダーを読み込む
@@ -64,9 +67,50 @@
             window.addEventListener("orientationchange", loadHeader);
 
 
+            // --- ここから新着情報の読み込み処理 (追加) ---
+            const JSON_URL = './data/news.json'; 
+
+            fetch(JSON_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("JSONファイルが見つかりません (404)");
+                    return response.json();
+                })
+                .then(data => {
+                    const newsContainer = document.getElementById('news-container');
+                    let htmlContent = '';
+
+                    // データが存在する場合
+                    if (data && data.length > 0) {
+                        // 日付の新しい順（降順）に並び替えたい場合はここで sort する
+                        // data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                        data.forEach(item => {
+                            // 改行コードを <br> に変換
+                            const contentWithBreaks = item.content ? item.content.replace(/\n/g, '<br>') : '';
+                            
+                            // <li>タイトル</li>
+                            // <p>本文</p>
+                            // というHTML構造を生成します
+                            htmlContent += `
+                                <li>${item.title}</li>
+                                <p>${contentWithBreaks}</p>
+                            `;
+                        });
+                    } else {
+                        htmlContent = '<p>現在お知らせはありません。</p>';
+                    }
+
+                    newsContainer.innerHTML = htmlContent;
+                })
+                .catch(error => {
+                    console.error('Newsの読み込みエラー:', error);
+                    // まだJSONがない場合やエラー時の表示
+                    document.getElementById('news-container').innerHTML = '<p>現在お知らせはありません。</p>';
+                });
+            // --- 新着情報読み込み処理終了 ---
 
 
-
+            // --- 既存のフッター読み込み処理 ---
             fetch("footer.html")
             .then((response) => response.text())
             .then((data) => {
@@ -79,5 +123,5 @@
             })
             .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
         </script>
-        </body>
+    </body>
 </html>
