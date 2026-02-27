@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>早稲田大学ショパンの会</title>
-        <meta name="discription" content="早稲田大学ショパンの会の公式サイトです！">
+        <meta name="description" content="早稲田大学ショパンの会の公式サイトです！">
         <link rel="stylesheet" href="css/style.css"></link>
     </head>
 
@@ -29,45 +29,35 @@
                 会費や演奏会についてはIntroductionに記載しておりますのでそちらを参照してください。</p>
             </div>
         </div>
+
+        <div class="article" id="shinkan" style="display: none; text-align: center;">
+            </div>
+
         <div id="footer"></div>
         
-
         <script>
             // --- 既存のヘッダー読み込み処理 ---
             const isMobile = window.innerWidth <= 768;
             const headerFile = isMobile ? 'phone-header.html' : 'pc-header.html';
 
-            // ヘッダーを読み込んで挿入
-            fetch(headerFile)
-                .then(response => response.text())
-                .then(data => {
-                    const container = document.getElementById('header-container');
-                    if (container) container.innerHTML = data;
-                })
-                .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
-
             function loadHeader() {
                 const timestamp = new Date().getTime(); // キャッシュ防止用のタイムスタンプ
-                const headerFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
+                const hFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
                 
-                fetch(`${headerFile}?v=${timestamp}`)  // キャッシュ対策
+                fetch(`${hFile}?v=${timestamp}`)  
                     .then((response) => response.text())
                     .then((data) => {
-                        // 元のコードに合わせて #header を探しますが、なければ #header-container に入れます
                         const header = document.querySelector("#header") || document.querySelector("#header-container");
                         if (header) header.innerHTML = data;
                     });
             }
 
-            // 初回ロード時にヘッダーを読み込む
+            // 初回ロード時＆リサイズ時にヘッダーを読み込む
             loadHeader();
-
-            // 画面サイズ変更時にヘッダーを再読み込み（iOSの回転対応）
             window.addEventListener("resize", loadHeader);
             window.addEventListener("orientationchange", loadHeader);
 
-
-            // --- ここから新着情報の読み込み処理 (追加) ---
+            // --- 新着情報 ＆ 新歓情報の読み込み処理 ---
             const JSON_URL = './data/news.json'; 
 
             fetch(JSON_URL)
@@ -77,38 +67,48 @@
                 })
                 .then(data => {
                     const newsContainer = document.getElementById('news-container');
-                    let htmlContent = '';
+                    const shinkanContainer = document.getElementById('shinkan');
+                    
+                    let newsHtml = '';
+                    let shinkanHtml = '';
 
                     // データが存在する場合
                     if (data && data.length > 0) {
-                        // 日付の新しい順（降順）に並び替えたい場合はここで sort する
-                        // data.sort((a, b) => new Date(b.date) - new Date(a.date));
-
                         data.forEach(item => {
                             // 改行コードを <br> に変換
                             const contentWithBreaks = item.content ? item.content.replace(/\n/g, '<br>') : '';
                             
-                            // <li>タイトル</li>
-                            // <p>本文</p>
-                            // というHTML構造を生成します
-                            htmlContent += `
-                                <li>${item.title}</li>
-                                <p>${contentWithBreaks}</p>
-                            `;
+                            // 条件：カテゴリが「新歓」かつ、タイトルが空欄（null または 空文字）
+                            if (item.category === '新歓' && (!item.title || item.title.trim() === '')) {
+                                // 配色指定を外し、太字指定のみに変更
+                                shinkanHtml += `<h3 style="font-weight: bold; margin: 10px 0;">${contentWithBreaks}</h3>`;
+                            } else {
+                                // それ以外は通常のニュースとしてリスト化
+                                newsHtml += `
+                                    <li>${item.title || 'お知らせ'}</li>
+                                    <p>${contentWithBreaks}</p>
+                                `;
+                            }
                         });
-                    } else {
-                        htmlContent = '<p>現在お知らせはありません。</p>';
                     }
 
-                    newsContainer.innerHTML = htmlContent;
+                    // 通常の新着情報を反映
+                    if (newsHtml !== '') {
+                        newsContainer.innerHTML = newsHtml;
+                    } else {
+                        newsContainer.innerHTML = '<p>現在お知らせはありません。</p>';
+                    }
+
+                    // 新歓のアナウンスがあれば、下段のコンテナを表示して反映
+                    if (shinkanHtml !== '') {
+                        shinkanContainer.innerHTML = shinkanHtml;
+                        shinkanContainer.style.display = 'block';
+                    }
                 })
                 .catch(error => {
                     console.error('Newsの読み込みエラー:', error);
-                    // まだJSONがない場合やエラー時の表示
                     document.getElementById('news-container').innerHTML = '<p>現在お知らせはありません。</p>';
                 });
-            // --- 新着情報読み込み処理終了 ---
-
 
             // --- 既存のフッター読み込み処理 ---
             fetch("footer.html")
