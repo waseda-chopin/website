@@ -1,32 +1,32 @@
 [
   {
-    "month": "予定",
-    "event": "４月",
-    "details": "新歓活動(詳しくはHomeタブを参照)"
+    "status": "予定",
+    "period": "４月",
+    "event": "新歓活動(詳しくはHomeタブを参照)"
   },
   {
-    "month": "予定",
-    "event": "6月",
-    "details": "前期定期演奏会"
+    "status": "予定",
+    "period": "6月",
+    "event": "前期定期演奏会"
   },
   {
-    "month": "予定",
-    "event": "夏休み",
-    "details": "合宿"
+    "status": "予定",
+    "period": "夏休み",
+    "event": "合宿"
   },
   {
-    "month": "予定",
-    "event": "11月",
-    "details": "早稲田祭特別演奏会"
+    "status": "予定",
+    "period": "11月",
+    "event": "早稲田祭特別演奏会"
   },
   {
-    "month": "予定",
-    "event": "冬休み",
-    "details": "後期定期演奏会"
+    "status": "予定",
+    "period": "冬休み",
+    "event": "後期定期演奏会"
   },
   {
-    "month": "予定",
-    "event": "春休み",
-    "details": "卒業演奏会"
+    "status": "予定",
+    "period": "春休み",
+    "event": "卒業演奏会"
   }
 ]
