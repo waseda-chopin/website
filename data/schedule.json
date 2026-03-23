@@ -1,0 +1,32 @@
+[
+  {
+    "month": "予定",
+    "event": "４月",
+    "details": "新歓活動(詳しくはHomeタブを参照)"
+  },
+  {
+    "month": "予定",
+    "event": "6月",
+    "details": "前期定期演奏会"
+  },
+  {
+    "month": "予定",
+    "event": "夏休み",
+    "details": "合宿"
+  },
+  {
+    "month": "予定",
+    "event": "11月",
+    "details": "早稲田祭特別演奏会"
+  },
+  {
+    "month": "予定",
+    "event": "冬休み",
+    "details": "後期定期演奏会"
+  },
+  {
+    "month": "予定",
+    "event": "春休み",
+    "details": "卒業演奏会"
+  }
+]
