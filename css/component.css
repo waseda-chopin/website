@@ -40,3 +40,28 @@ li{
 .src{
     align-items:center;
 }
+
+/* --- Scheduleページ用のテーブル設定 --- */
+#schedule-table {
+    margin: 30px auto;
+    width: 90%;
+    border-collapse: collapse;
+    background-color: transparent; /* 赤い背景を消す */
+    color: black; /* 文字色を黒にする */
+}
+
+#schedule-table th {
+    height: 30px;
+    padding: 10px;
+    border: 1px solid black; /* 黒い枠線 */
+    background-color: #FBE6E6; /* 見出しだけ薄いピンクにして見やすくする（不要なら削除） */
+    color: black; 
+}
+
+#schedule-table td {
+    height: 30px;
+    padding: 1%;
+    text-align: center;
+    border: 1px solid black; /* 黒い枠線 */
+    color: black; 
+}

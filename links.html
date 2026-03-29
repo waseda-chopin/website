@@ -2,33 +2,112 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <title>Links</title>
-        <meta name="discription" content="リンク">
-        <link rel="stylesheet" href="css/style.css"></link>
-        <link rel="stylesheet" href="css/component.css"></link>
-        
+        <title>Links - 早稲田大学ショパンの会</title>
+        <meta name="description" content="リンク集">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/component.css">
     </head>
 
     <body>
-        <div id="header"></div>
+        <div id="header-container"></div>
+        
         <h2>Links</h2>
+        
+        <p>お世話になっているピアノサークル様や、関係団体様のリンク集です。</p>
 
-        <p>只今準備中です。しばらくお待ち下さい。</p>
+        <div id="links-container" style="margin: 30px;">
+            <p>読み込み中...</p>
+        </div>
+
         <div id="footer"></div>
-        <script>
-            fetch("pc-header.html")
-            .then((response) => response.text())
-            .then((data) => document.querySelector("#header").innerHTML = data);
 
+        <script>
+            // --- 共通: ヘッダー読み込み処理 (レスポンシブ対応) ---
+            function loadHeader() {
+                const timestamp = new Date().getTime(); // キャッシュ対策
+                const headerFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
+                
+                fetch(`${headerFile}?v=${timestamp}`)
+                    .then((response) => response.text())
+                    .then((data) => {
+                        const header = document.querySelector("#header-container");
+                        if (header) header.innerHTML = data;
+                    })
+                    .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
+            }
+
+            // 初回ロード時とリサイズ時にヘッダーを読み込む
+            loadHeader();
+            window.addEventListener("resize", loadHeader);
+            window.addEventListener("orientationchange", loadHeader);
+
+
+            // --- Linksデータ (JSON) の読み込みと表示処理 ---
+            const JSON_URL = './data/links.json';
+
+            fetch(JSON_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("JSONファイルが見つかりません");
+                    return response.json();
+                })
+                .then(data => {
+                    const linksContainer = document.getElementById('links-container');
+                    let htmlContent = '';
+
+                    if (data && data.length > 0) {
+                        // 1. データをカテゴリ(class)ごとにグループ化する
+                        const groupedData = data.reduce((acc, item) => {
+                            // カテゴリ名が空の場合は「その他」にする
+                            const cat = item.category || 'その他';
+                            if (!acc[cat]) acc[cat] = [];
+                            acc[cat].push(item);
+                            return acc;
+                        }, {});
+
+                        // 2. グループ化されたデータからHTMLを生成
+                        for (const [category, items] of Object.entries(groupedData)) {
+                            // カテゴリ名の見出し (marginで少し余白を持たせる)
+                            htmlContent += `<h3 style="margin-top: 40px; text-align: left;">${category}</h3>`;
+                            // 箇条書きリスト (スタイルはstyle.cssのli設定に従う)
+                            htmlContent += `<ul style="margin-left: 20px; margin-bottom: 30px; list-style-type: disc;">`;
+                            
+                            // 各リンクを「名前 ： アドレス」の形式でリスト化
+                            items.forEach(item => {
+                                // アドレスがない場合は名前だけ表示
+                                if (!item.url) {
+                                    htmlContent += `<li style="margin-bottom: 10px; font-size: 18px;">${item.name}</li>`;
+                                } else {
+                                    htmlContent += `
+                                        <li style="margin-bottom: 10px; font-size: 18px;">
+                                            ${item.name} ： 
+                                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
+                                               style="color: #CC4646; text-decoration: underline; word-break: break-all;">
+                                                ${item.url}
+                                            </a>
+                                        </li>
+                                    `;
+                                }
+                            });
+                            htmlContent += `</ul>`;
+                        }
+                    } else {
+                        htmlContent = '<p>現在掲載されているリンクはありません。</p>';
+                    }
+
+                    linksContainer.innerHTML = htmlContent;
+                })
+                .catch(error => {
+                    console.error('Linksの読み込みエラー:', error);
+                    document.getElementById('links-container').innerHTML = '<p>リンクデータの読み込みに失敗しました。GASで更新を行ってください。</p>';
+                });
+
+
+            // --- 共通: フッター読み込み処理 ---
             fetch("footer.html")
             .then((response) => response.text())
             .then((data) => {
                 const footer = document.querySelector("#footer");
-                if (footer) {
-                    footer.innerHTML = data;
-                } else {
-                    console.error("要素 #footer が見つかりません。");
-                }
+                if (footer) footer.innerHTML = data;
             })
             .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
         </script>

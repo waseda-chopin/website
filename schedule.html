@@ -2,33 +2,101 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <title>Introduction</title>
-        <meta name="discription" content="概要">
-        <link rel="stylesheet" href="css/style.css"></link>
-        <link rel="stylesheet" href="css/component.css"></link>
-        
+        <title>Schedule - 早稲田大学ショパンの会</title>
+        <meta name="description" content="年間スケジュール">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/component.css">
     </head>
 
     <body>
-        <div id="header"></div>
+        <div id="header-container"></div>
+        
         <h2>Schedule</h2>
+        
+        <p>ショパンの会の1年間の主な予定です。（※予定は変更される場合があります）</p>
 
+        <table id="schedule-table">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">状態</th>
+                    <th style="width: 25%;">月・季節</th>
+                    <th style="width: 55%;">行事</th>
+                </tr>
+            </thead>
+            <tbody id="schedule-body">
+                <tr>
+                    <td colspan="3">読み込み中...</td>
+                </tr>
+            </tbody>
+        </table>
 
         <div id="footer"></div>
-        <script>
-            fetch("pc-header.html")
-            .then((response) => response.text())
-            .then((data) => document.querySelector("#header").innerHTML = data);
 
+        <script>
+            // --- 共通: ヘッダー読み込み処理 ---
+            function loadHeader() {
+                const timestamp = new Date().getTime(); // キャッシュ対策
+                const headerFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
+                
+                fetch(`${headerFile}?v=${timestamp}`)
+                    .then((response) => response.text())
+                    .then((data) => {
+                        const header = document.querySelector("#header-container");
+                        if (header) header.innerHTML = data;
+                    })
+                    .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
+            }
+
+            loadHeader();
+            window.addEventListener("resize", loadHeader);
+            window.addEventListener("orientationchange", loadHeader);
+
+
+            // --- Scheduleデータ (JSON) の読み込みと表示処理 ---
+            const JSON_URL = './data/schedule.json';
+
+            fetch(JSON_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("JSONファイルが見つかりません");
+                    return response.json();
+                })
+                .then(data => {
+                    const tbody = document.getElementById('schedule-body');
+                    let htmlContent = '';
+
+                    if (data && data.length > 0) {
+                        data.forEach(item => {
+                            // スプレッドシート内の改行をHTMLの改行タグ(<br>)に変換
+                            const status = item.status ? String(item.status).replace(/\n/g, '<br>') : '';
+                            const period = item.period ? String(item.period).replace(/\n/g, '<br>') : '';
+                            const event = item.event ? String(item.event).replace(/\n/g, '<br>') : '';
+
+                            htmlContent += `
+                                <tr>
+                                    <td>${status}</td>
+                                    <td>${period}</td>
+                                    <td>${event}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        htmlContent = '<tr><td colspan="3">現在予定されているスケジュールはありません。</td></tr>';
+                    }
+
+                    tbody.innerHTML = htmlContent;
+                })
+                .catch(error => {
+                    console.error('スケジュールの読み込みエラー:', error);
+                    document.getElementById('schedule-body').innerHTML = '<tr><td colspan="3">スケジュールの読み込みに失敗しました。</td></tr>';
+                });
+
+
+            // --- 共通: フッター読み込み処理 ---
             fetch("footer.html")
             .then((response) => response.text())
             .then((data) => {
                 const footer = document.querySelector("#footer");
-                if (footer) {
-                    footer.innerHTML = data;
-                } else {
-                    console.error("要素 #footer が見つかりません。");
-                }
+                if (footer) footer.innerHTML = data;
             })
             .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
         </script>

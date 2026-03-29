@@ -30,8 +30,8 @@
             </div>
         </div>
 
-        <div class="article" id="shinkan" style="display: none; text-align: center;">
-            </div>
+        <div class="article" id="shinkan" style="display: none;">
+        </div>
 
         <div id="footer"></div>
         
@@ -78,12 +78,20 @@
                             // 改行コードを <br> に変換
                             const contentWithBreaks = item.content ? item.content.replace(/\n/g, '<br>') : '';
                             
-                            // 条件：カテゴリが「新歓」かつ、タイトルが空欄（null または 空文字）
-                            if (item.category === '新歓' && (!item.title || item.title.trim() === '')) {
-                                // 配色指定を外し、太字指定のみに変更
-                                shinkanHtml += `<h3 style="font-weight: bold; margin: 10px 0;">${contentWithBreaks}</h3>`;
+                            if (item.category === '新歓') {
+                                // 【条件1】カテゴリーが「新歓」の場合
+                                if (!item.title || item.title.trim() === '') {
+                                    // 【条件2】タイトルが空欄なら、contentsを太字の中央揃えタイトルとして表示
+                                    shinkanHtml += `<h3 style="font-weight: bold; text-align: center; margin: 10px 0;">${contentWithBreaks}</h3>`;
+                                } else {
+                                    // 【条件3】タイトルがあれば、新歓の中で箇条書きとして表示
+                                    shinkanHtml += `
+                                        <li>${item.title}</li>
+                                        <p>${contentWithBreaks}</p>
+                                    `;
+                                }
                             } else {
-                                // それ以外は通常のニュースとしてリスト化
+                                // 【条件外】カテゴリーが「新歓」以外なら通常のニュースとして処理
                                 newsHtml += `
                                     <li>${item.title || 'お知らせ'}</li>
                                     <p>${contentWithBreaks}</p>
