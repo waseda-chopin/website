@@ -78,6 +78,15 @@
                             // 改行コードを <br> に変換
                             const contentWithBreaks = item.content ? item.content.replace(/\n/g, '<br>') : '';
                             
+                            // リンクが存在するかどうかの判定
+                            const hasLink = item.link && item.link.trim() !== '';
+                            
+                            // リンクがあれば本文の末尾に「参照：(URL)」を追加
+                            let displayContent = contentWithBreaks;
+                            if (hasLink) {
+                                displayContent += `<br>参照：<a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: #0056b3; text-decoration: underline;">${item.link}</a>`;
+                            }
+
                             if (item.category === '新歓') {
                                 // 【条件1】カテゴリーが「新歓」の場合
                                 if (!item.title || item.title.trim() === '') {
@@ -87,14 +96,14 @@
                                     // 【条件3】タイトルがあれば、新歓の中で箇条書きとして表示
                                     shinkanHtml += `
                                         <li>${item.title}</li>
-                                        <p>${contentWithBreaks}</p>
+                                        <p>${displayContent}</p>
                                     `;
                                 }
                             } else {
                                 // 【条件外】カテゴリーが「新歓」以外なら通常のニュースとして処理
                                 newsHtml += `
                                     <li>${item.title || 'お知らせ'}</li>
-                                    <p>${contentWithBreaks}</p>
+                                    <p>${displayContent}</p>
                                 `;
                             }
                         });
