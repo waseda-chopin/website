@@ -2,10 +2,12 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Links - 早稲田大学ショパンの会</title>
         <meta name="description" content="リンク集">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/component.css">
+        <link rel="stylesheet" href="css/responsive.css">
     </head>
 
     <body>
@@ -22,85 +24,129 @@
         <div id="footer"></div>
 
         <script>
-            // --- 共通: ヘッダー読み込み処理 (レスポンシブ対応) ---
+            // 画面幅に応じてヘッダーを切り替える。リサイズ中の競合と再取得を防ぐ。
+            let activeHeaderFile = null;
+            let headerRequestSerial = 0;
             function loadHeader() {
-                const timestamp = new Date().getTime(); // キャッシュ対策
-                const headerFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
-                
-                fetch(`${headerFile}?v=${timestamp}`)
-                    .then((response) => response.text())
-                    .then((data) => {
-                        const header = document.querySelector("#header-container");
-                        if (header) header.innerHTML = data;
+                const headerFile = window.matchMedia('(max-width: 768px)').matches
+                    ? 'phone-header.html' : 'pc-header.html';
+                if (headerFile === activeHeaderFile) return;
+                activeHeaderFile = headerFile;
+                const serial = ++headerRequestSerial;
+                fetch(headerFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.text();
                     })
-                    .catch(error => console.error('ヘッダーの読み込みに失敗しました:', error));
+                    .then(data => {
+                        if (serial !== headerRequestSerial) return;
+                        const header = document.getElementById('header-container');
+                        if (header) header.innerHTML = data; // GitHub上で管理する固定HTMLだけ
+                    })
+                    .catch(error => {
+                        if (serial === headerRequestSerial) activeHeaderFile = null;
+                        console.error('ヘッダーの読み込みに失敗しました:', error);
+                    });
+            }
+            loadHeader();
+            window.addEventListener('resize', loadHeader);
+
+                        // --- Linksデータ (JSON) の読み込みと表示処理 ---
+            const JSON_URL = './data/links.json';
+
+            // 公開リンクとして使える絶対URLだけを許可する。
+            // 既存データにhttpのリンクもあるため、httpsとhttpを許可する。
+            function getSafeLinkUrl(value) {
+                if (typeof value !== 'string' || !value.trim()) return null;
+                try {
+                    const url = new URL(value.trim());
+                    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+                    if (!url.hostname || url.username || url.password) return null;
+                    return url.href;
+                } catch (error) {
+                    return null;
+                }
             }
 
-            // 初回ロード時とリサイズ時にヘッダーを読み込む
-            loadHeader();
-            window.addEventListener("resize", loadHeader);
-            window.addEventListener("orientationchange", loadHeader);
-
-
-            // --- Linksデータ (JSON) の読み込みと表示処理 ---
-            const JSON_URL = './data/links.json';
+            function showLinksMessage(message) {
+                const container = document.getElementById('links-container');
+                const p = document.createElement('p');
+                p.textContent = message;
+                container.replaceChildren(p);
+            }
 
             fetch(JSON_URL)
                 .then(response => {
-                    if (!response.ok) throw new Error("JSONファイルが見つかりません");
+                    if (!response.ok) throw new Error('JSONファイルが見つかりません');
                     return response.json();
                 })
                 .then(data => {
-                    const linksContainer = document.getElementById('links-container');
-                    let htmlContent = '';
-
-                    if (data && data.length > 0) {
-                        // 1. データをカテゴリ(class)ごとにグループ化する
-                        const groupedData = data.reduce((acc, item) => {
-                            // カテゴリ名が空の場合は「その他」にする
-                            const cat = item.category || 'その他';
-                            if (!acc[cat]) acc[cat] = [];
-                            acc[cat].push(item);
-                            return acc;
-                        }, {});
-
-                        // 2. グループ化されたデータからHTMLを生成
-                        for (const [category, items] of Object.entries(groupedData)) {
-                            // カテゴリ名の見出し (marginで少し余白を持たせる)
-                            htmlContent += `<h3 style="margin-top: 40px; text-align: left;">${category}</h3>`;
-                            // 箇条書きリスト (スタイルはstyle.cssのli設定に従う)
-                            htmlContent += `<ul style="margin-left: 20px; margin-bottom: 30px; list-style-type: disc;">`;
-                            
-                            // 各リンクを「名前 ： アドレス」の形式でリスト化
-                            items.forEach(item => {
-                                // アドレスがない場合は名前だけ表示
-                                if (!item.url) {
-                                    htmlContent += `<li style="margin-bottom: 10px; font-size: 18px;">${item.name}</li>`;
-                                } else {
-                                    htmlContent += `
-                                        <li style="margin-bottom: 10px; font-size: 18px;">
-                                            ${item.name} ： 
-                                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
-                                               style="color: #CC4646; text-decoration: underline; word-break: break-all;">
-                                                ${item.url}
-                                            </a>
-                                        </li>
-                                    `;
-                                }
-                            });
-                            htmlContent += `</ul>`;
-                        }
-                    } else {
-                        htmlContent = '<p>現在掲載されているリンクはありません。</p>';
+                    if (!Array.isArray(data)) throw new Error('Linksデータの形式が正しくありません');
+                    if (data.length === 0) {
+                        showLinksMessage('現在掲載されているリンクはありません。');
+                        return;
                     }
 
-                    linksContainer.innerHTML = htmlContent;
+                    // Mapを使い、カテゴリ名（__proto__などを含む）を安全に管理する。
+                    const groupedData = new Map();
+                    data.forEach(item => {
+                        if (!item || typeof item !== 'object') return;
+                        const category = item.category || 'その他';
+                        const categoryText = String(category);
+                        if (!groupedData.has(categoryText)) groupedData.set(categoryText, []);
+                        groupedData.get(categoryText).push(item);
+                    });
+
+                    const fragment = document.createDocumentFragment();
+                    groupedData.forEach((items, category) => {
+                        const heading = document.createElement('h3');
+                        heading.style.marginTop = '40px';
+                        heading.style.textAlign = 'left';
+                        heading.textContent = category;
+                        fragment.appendChild(heading);
+
+                        const list = document.createElement('ul');
+                        list.style.marginLeft = '20px';
+                        list.style.marginBottom = '30px';
+                        list.style.listStyleType = 'disc';
+
+                        items.forEach(item => {
+                            const li = document.createElement('li');
+                            li.style.marginBottom = '10px';
+                            li.style.fontSize = '18px';
+                            const name = String(item.name ?? '');
+                            const urlText = String(item.url ?? '').trim();
+                            li.appendChild(document.createTextNode(name));
+
+                            if (urlText) {
+                                li.appendChild(document.createTextNode(' ： '));
+                                const safeUrl = getSafeLinkUrl(urlText);
+                                if (safeUrl) {
+                                    const a = document.createElement('a');
+                                    a.href = safeUrl;
+                                    a.target = '_blank';
+                                    a.rel = 'noopener noreferrer';
+                                    a.style.color = '#CC4646';
+                                    a.style.textDecoration = 'underline';
+                                    a.style.wordBreak = 'break-all';
+                                    a.textContent = urlText;
+                                    li.appendChild(a);
+                                } else {
+                                    // 不正なリンク先はクリック可能にせず文字として表示する。
+                                    li.appendChild(document.createTextNode(urlText));
+                                }
+                            }
+                            list.appendChild(li);
+                        });
+                        fragment.appendChild(list);
+                    });
+
+                    document.getElementById('links-container').replaceChildren(fragment);
                 })
                 .catch(error => {
                     console.error('Linksの読み込みエラー:', error);
-                    document.getElementById('links-container').innerHTML = '<p>リンクデータの読み込みに失敗しました。GASで更新を行ってください。</p>';
+                    showLinksMessage('リンクデータの読み込みに失敗しました。GASで更新を行ってください。');
                 });
-
 
             // --- 共通: フッター読み込み処理 ---
             fetch("footer.html")

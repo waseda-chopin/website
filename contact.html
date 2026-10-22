@@ -2,11 +2,12 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Contact</title>
-        <meta name="discription" content="概要">
-        <link rel="stylesheet" href="css/style.css"></link>
-        <link rel="stylesheet" href="css/component.css"></link>
-        
+        <meta name="description" content="早稲田大学ショパンの会へのお問い合わせ">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/component.css">
+        <link rel="stylesheet" href="css/responsive.css">
     </head>
 
     <body>
@@ -15,28 +16,55 @@
         <p>各種SNSやメールだけでなく、こちらでお問い合わせしていただくこともできます。<br>
             返信をする場合があるのでメールアドレスをご記載ください。</p>
 
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScOSvesaV4MS2GDaa6y1vWEp-upjnRrUFglpNbN3EM8CKjHZQ/viewform?embedded=true" width="640" height="856" frameborder="0" marginheight="0" marginwidth="0">読み込んでいます…</iframe>
-
-        <p></p>
-
+        <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLScOSvesaV4MS2GDaa6y1vWEp-upjnRrUFglpNbN3EM8CKjHZQ/viewform?embedded=true"
+            title="お問い合わせフォーム（Googleフォーム）"
+            width="640"
+            height="856"
+            style="max-width: 100%; border: 0;"
+            loading="lazy"
+        >読み込んでいます…</iframe>
 
         <div id="footer"></div>
-        <script>
-            fetch("pc-header.html")
-            .then((response) => response.text())
-            .then((data) => document.querySelector("#header").innerHTML = data);
 
-            fetch("footer.html")
-            .then((response) => response.text())
-            .then((data) => {
-                const footer = document.querySelector("#footer");
-                if (footer) {
-                    footer.innerHTML = data;
-                } else {
-                    console.error("要素 #footer が見つかりません。");
-                }
-            })
-            .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
+        <script>
+            // 画面幅に応じてヘッダーを切り替える。リサイズ中の競合と再取得を防ぐ。
+            let activeHeaderFile = null;
+            let headerRequestSerial = 0;
+            function loadHeader() {
+                const headerFile = window.matchMedia('(max-width: 768px)').matches
+                    ? 'phone-header.html' : 'pc-header.html';
+                if (headerFile === activeHeaderFile) return;
+                activeHeaderFile = headerFile;
+                const serial = ++headerRequestSerial;
+                fetch(headerFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.text();
+                    })
+                    .then(data => {
+                        if (serial !== headerRequestSerial) return;
+                        const header = document.getElementById('header');
+                        if (header) header.innerHTML = data; // GitHub上で管理する固定HTMLだけ
+                    })
+                    .catch(error => {
+                        if (serial === headerRequestSerial) activeHeaderFile = null;
+                        console.error('ヘッダーの読み込みに失敗しました:', error);
+                    });
+            }
+            loadHeader();
+            window.addEventListener('resize', loadHeader);
+
+                        fetch("footer.html")
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.text();
+                })
+                .then(data => {
+                    const footer = document.getElementById("footer");
+                    if (footer) footer.innerHTML = data;
+                })
+                .catch(error => console.error("footer.html の読み込みに失敗しました:", error));
         </script>
     </body>
 </html>

@@ -2,9 +2,11 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>早稲田大学ショパンの会</title>
         <meta name="description" content="早稲田大学ショパンの会の公式サイトです！">
-        <link rel="stylesheet" href="css/style.css"></link>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/responsive.css">
     </head>
 
     <body>
@@ -12,7 +14,7 @@
 
         <p>※こちらは2025年3月に作った新webサイトです。旧サイトは閉鎖しました。</p>
         <h2>ご挨拶</h2>
-        
+
         <p>こんにちは！早稲田大学ショパンの会の公式サイトへようこそ！</p>
         <p>当サークルは会員の演奏レベルや所属大学を問わず、音楽に触れる喜びを共有することを目的としたピアノサークルです。このWebサイトは当サークルに関する様々な情報やコンサートプログラムの紹介を目的としています。</p>
 
@@ -30,115 +32,160 @@
             </div>
         </div>
 
-        <div class="article" id="shinkan" style="display: none;">
-        </div>
+        <div class="article" id="shinkan" style="display: none;"></div>
 
         <div id="footer"></div>
-        
-        <script>
-            // --- 既存のヘッダー読み込み処理 ---
-            const isMobile = window.innerWidth <= 768;
-            const headerFile = isMobile ? 'phone-header.html' : 'pc-header.html';
 
+        <script>
+            // 画面幅に応じてヘッダーを切り替える。リサイズ中の競合と再取得を防ぐ。
+            let activeHeaderFile = null;
+            let headerRequestSerial = 0;
             function loadHeader() {
-                const timestamp = new Date().getTime(); // キャッシュ防止用のタイムスタンプ
-                const hFile = window.innerWidth > 768 ? "pc-header.html" : "phone-header.html";
-                
-                fetch(`${hFile}?v=${timestamp}`)  
-                    .then((response) => response.text())
-                    .then((data) => {
-                        const header = document.querySelector("#header") || document.querySelector("#header-container");
-                        if (header) header.innerHTML = data;
+                const headerFile = window.matchMedia('(max-width: 768px)').matches
+                    ? 'phone-header.html' : 'pc-header.html';
+                if (headerFile === activeHeaderFile) return;
+                activeHeaderFile = headerFile;
+                const serial = ++headerRequestSerial;
+                fetch(headerFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.text();
+                    })
+                    .then(data => {
+                        if (serial !== headerRequestSerial) return;
+                        const header = document.getElementById('header-container');
+                        if (header) header.innerHTML = data; // GitHub上で管理する固定HTMLだけ
+                    })
+                    .catch(error => {
+                        if (serial === headerRequestSerial) activeHeaderFile = null;
+                        console.error('ヘッダーの読み込みに失敗しました:', error);
                     });
             }
-
-            // 初回ロード時＆リサイズ時にヘッダーを読み込む
             loadHeader();
-            window.addEventListener("resize", loadHeader);
-            window.addEventListener("orientationchange", loadHeader);
+            window.addEventListener('resize', loadHeader);
+
+                        // --- JSONの文字列をHTMLとして解釈させず、改行だけ<br>で再現 ---
+            function appendTextWithBreaks(parent, value) {
+                const lines = String(value ?? '').split(/\r\n|\r|\n/);
+                lines.forEach((line, index) => {
+                    if (index > 0) parent.appendChild(document.createElement('br'));
+                    parent.appendChild(document.createTextNode(line));
+                });
+            }
+
+            // リンクには通常のWebページURL（http/https）だけを許可する
+            function getSafeHref(value) {
+                if (typeof value !== 'string' || value.trim() === '') return null;
+                try {
+                    const url = new URL(value.trim(), document.baseURI);
+                    if (url.protocol === 'http:' || url.protocol === 'https:') {
+                        return url.href;
+                    }
+                } catch (error) {
+                    // 不正なURLはリンクにしない
+                }
+                return null;
+            }
+
+            function appendNewsContent(parent, item) {
+                appendTextWithBreaks(parent, item.content);
+
+                const rawLink = typeof item.link === 'string' ? item.link.trim() : '';
+                const safeHref = getSafeHref(rawLink);
+                if (safeHref) {
+                    parent.appendChild(document.createElement('br'));
+                    parent.appendChild(document.createTextNode('参照：'));
+
+                    const anchor = document.createElement('a');
+                    anchor.href = safeHref;
+                    anchor.target = '_blank';
+                    anchor.rel = 'noopener noreferrer';
+                    anchor.style.color = '#0056b3';
+                    anchor.style.textDecoration = 'underline';
+                    anchor.textContent = rawLink;
+                    parent.appendChild(anchor);
+                }
+            }
 
             // --- 新着情報 ＆ 新歓情報の読み込み処理 ---
-            const JSON_URL = './data/news.json'; 
+            const JSON_URL = './data/news.json';
 
             fetch(JSON_URL)
                 .then(response => {
-                    if (!response.ok) throw new Error("JSONファイルが見つかりません (404)");
+                    if (!response.ok) throw new Error('JSONファイルを取得できません');
                     return response.json();
                 })
                 .then(data => {
                     const newsContainer = document.getElementById('news-container');
                     const shinkanContainer = document.getElementById('shinkan');
-                    
-                    let newsHtml = '';
-                    let shinkanHtml = '';
+                    const newsFragment = document.createDocumentFragment();
+                    const shinkanFragment = document.createDocumentFragment();
 
-                    // データが存在する場合
-                    if (data && data.length > 0) {
+                    if (Array.isArray(data)) {
                         data.forEach(item => {
-                            // 改行コードを <br> に変換
-                            const contentWithBreaks = item.content ? item.content.replace(/\n/g, '<br>') : '';
-                            
-                            // リンクが存在するかどうかの判定
-                            const hasLink = item.link && item.link.trim() !== '';
-                            
-                            // リンクがあれば本文の末尾に「参照：(URL)」を追加
-                            let displayContent = contentWithBreaks;
-                            if (hasLink) {
-                                displayContent += `<br>参照：<a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: #0056b3; text-decoration: underline;">${item.link}</a>`;
-                            }
+                            if (!item || typeof item !== 'object') return;
 
+                            const title = String(item.title ?? '');
                             if (item.category === '新歓') {
-                                // 【条件1】カテゴリーが「新歓」の場合
-                                if (!item.title || item.title.trim() === '') {
-                                    // 【条件2】タイトルが空欄なら、contentsを太字の中央揃えタイトルとして表示
-                                    shinkanHtml += `<h3 style="font-weight: bold; text-align: center; margin: 10px 0;">${contentWithBreaks}</h3>`;
+                                if (title.trim() === '') {
+                                    const heading = document.createElement('h3');
+                                    heading.style.fontWeight = 'bold';
+                                    heading.style.textAlign = 'center';
+                                    heading.style.margin = '10px 0';
+                                    appendTextWithBreaks(heading, item.content);
+                                    shinkanFragment.appendChild(heading);
                                 } else {
-                                    // 【条件3】タイトルがあれば、新歓の中で箇条書きとして表示
-                                    shinkanHtml += `
-                                        <li>${item.title}</li>
-                                        <p>${displayContent}</p>
-                                    `;
+                                    const li = document.createElement('li');
+                                    li.textContent = title;
+                                    const p = document.createElement('p');
+                                    appendNewsContent(p, item);
+                                    shinkanFragment.append(li, p);
                                 }
                             } else {
-                                // 【条件外】カテゴリーが「新歓」以外なら通常のニュースとして処理
-                                newsHtml += `
-                                    <li>${item.title || 'お知らせ'}</li>
-                                    <p>${displayContent}</p>
-                                `;
+                                const li = document.createElement('li');
+                                li.textContent = title || 'お知らせ';
+                                const p = document.createElement('p');
+                                appendNewsContent(p, item);
+                                newsFragment.append(li, p);
                             }
                         });
                     }
 
-                    // 通常の新着情報を反映
-                    if (newsHtml !== '') {
-                        newsContainer.innerHTML = newsHtml;
+                    if (newsFragment.hasChildNodes()) {
+                        newsContainer.replaceChildren(newsFragment);
                     } else {
-                        newsContainer.innerHTML = '<p>現在お知らせはありません。</p>';
+                        const p = document.createElement('p');
+                        p.textContent = '現在お知らせはありません。';
+                        newsContainer.replaceChildren(p);
                     }
 
-                    // 新歓のアナウンスがあれば、下段のコンテナを表示して反映
-                    if (shinkanHtml !== '') {
-                        shinkanContainer.innerHTML = shinkanHtml;
+                    if (shinkanFragment.hasChildNodes()) {
+                        shinkanContainer.replaceChildren(shinkanFragment);
                         shinkanContainer.style.display = 'block';
+                    } else {
+                        shinkanContainer.replaceChildren();
+                        shinkanContainer.style.display = 'none';
                     }
                 })
                 .catch(error => {
                     console.error('Newsの読み込みエラー:', error);
-                    document.getElementById('news-container').innerHTML = '<p>現在お知らせはありません。</p>';
+                    const p = document.createElement('p');
+                    p.textContent = '現在お知らせはありません。';
+                    document.getElementById('news-container').replaceChildren(p);
                 });
 
-            // --- 既存のフッター読み込み処理 ---
-            fetch("footer.html")
-            .then((response) => response.text())
-            .then((data) => {
-                const footer = document.querySelector("#footer");
-                if (footer) {
-                    footer.innerHTML = data;
-                } else {
-                    console.error("要素 #footer が見つかりません。");
-                }
-            })
-            .catch((error) => console.error("footer.html の読み込みに失敗しました:", error));
+            // --- 既存のフッター読み込み処理（管理下のHTMLファイルのみ） ---
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    const footer = document.querySelector('#footer');
+                    if (footer) {
+                        footer.innerHTML = data;
+                    } else {
+                        console.error('要素 #footer が見つかりません。');
+                    }
+                })
+                .catch(error => console.error('footer.html の読み込みに失敗しました:', error));
         </script>
     </body>
 </html>

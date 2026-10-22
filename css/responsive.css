@@ -1,0 +1,185 @@
+@charset "UTF-8";
+/* 既存のstyle.css / component.cssの後に読み込む。PC表示は変更しない。 */
+@media (min-width: 769px) {
+  .schedule-scroll-hint { display: none; }
+}
+
+@media (max-width: 768px) {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; width: 100%; min-width: 0; overflow-wrap: anywhere; }
+  img, video { max-width: 100%; height: auto; }
+
+  h2 { margin: 22px 16px 14px; font-size: 1.55rem; }
+  h2::before { height: 1.3em; vertical-align: -0.18em; }
+  h3 { font-size: 1.5rem; line-height: 1.45; }
+  p { margin: 16px; font-size: 1rem; line-height: 1.7; }
+  li { font-size: 1.05rem; }
+
+  /* スマホのナビゲーションは幅を占有しないドロップダウンにする。 */
+  .phone-header {
+    position: relative;
+    isolation: isolate;
+    z-index: 100;
+    height: 56px;
+    background: #CC4646;
+    font-family: "Futura", Helvetica, sans-serif;
+  }
+  .phone-header .navtext-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    padding: 0 56px;
+  }
+  .phone-header .navtext {
+    position: static;
+    width: 100%;
+    text-align: center;
+    font-size: clamp(0.82rem, 3.8vw, 1.08rem);
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: white;
+    white-space: nowrap;
+  }
+  .phone-header .menu-icon {
+    position: absolute;
+    z-index: 3;
+    left: 4px;
+    top: 2px;
+    padding: 24px 14px;
+  }
+  .phone-header .menu {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    top: 56px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: rgba(55, 55, 55, 0.98);
+    list-style: none;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  }
+  .phone-header .menu-btn:checked ~ .menu {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .phone-header .menu li {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid rgba(255,255,255,0.16);
+    opacity: 1;
+  }
+  .phone-header .menu a {
+    display: block;
+    padding: 13px 22px;
+    color: #fff;
+    opacity: 1;
+    font-size: 1rem;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  .phone-header .menu a:focus-visible,
+  .phone-header .menu a:hover { background: rgba(255,255,255,0.14); }
+
+  /* Home: 2カラムのカードを縦に並べる。 */
+  .field { display: flex; flex-direction: column; gap: 14px; }
+  .field .article, .article#shinkan {
+    flex: none;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    margin: 12px 16px;
+    padding: 16px;
+  }
+  .article p { margin: 12px 0; }
+  .article li { margin-left: 16px; overflow-wrap: anywhere; }
+  #shinkan { width: auto; }
+
+  /* Introduction: 左の目次を本文の上へ。 */
+  .introfield { display: flex; flex-direction: column; width: 100%; }
+  .introfield .tree {
+    width: auto;
+    margin: 0 16px 20px;
+    padding: 0 0 0 12px;
+  }
+  .introfield .tree li { margin: 8px 0 8px 10px; padding-left: 18px; }
+  .introfield .tree h2 { margin-left: 0; }
+  .introfield .introcontents {
+    width: auto;
+    min-width: 0;
+    border-left: none;
+    border-top: 1px solid #aaa;
+    padding: 16px;
+  }
+  .introfield .introcontents p { margin: 12px 0; }
+  .introfield .index { min-width: 0; gap: 8px; }
+  .introfield .index hr { min-width: 0; }
+  .introfield .introindex {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 1.25rem;
+  }
+  .introfield [id^="section-"] { scroll-margin-top: 16px; }
+
+  /* Schedule: 見出しの3列を保持したまま横スクロール。 */
+  .schedule-scroll-hint { margin: 8px 16px 0; font-size: 0.85rem; color: #555; }
+  .schedule-scroll {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 14px 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .schedule-scroll #schedule-table {
+    min-width: 490px;
+    width: 100%;
+    margin: 0;
+  }
+  .schedule-scroll #schedule-table th,
+  .schedule-scroll #schedule-table td {
+    padding: 10px 7px;
+    font-size: 0.9rem;
+    overflow-wrap: break-word;
+  }
+
+  /* Concert / Links: 長いリストとURLは画面をはみ出させない。 */
+  #next-concert { margin-left: 16px; margin-right: 16px; }
+  #past-concerts { padding: 0 16px; }
+  #past-concerts h3 { overflow-wrap: anywhere; }
+  #past-concerts ul { margin: 0 0 16px 0 !important; padding-left: 24px; }
+  #past-concerts li { margin: 5px 0; overflow-wrap: anywhere; }
+  #links-container { margin: 16px !important; min-width: 0; }
+  #links-container h3 { font-size: 1.25rem; overflow-wrap: anywhere; }
+  #links-container ul { margin-left: 0 !important; padding-left: 24px; }
+  #links-container li { margin: 7px 0; overflow-wrap: anywhere; }
+  #links-container a { overflow-wrap: anywhere; word-break: break-word; }
+
+  /* Contact: Googleフォームを端末幅に収める。 */
+  iframe[src*="docs.google.com/forms/"] {
+    display: block;
+    width: calc(100% - 32px);
+    max-width: 640px;
+    margin: 16px auto;
+    border: 0;
+  }
+
+  /* フッターの従来の200pxの空白をスマホでは詰める。 */
+  #footer > div:first-child { margin-top: 45px !important; }
+  #footer p { overflow-wrap: anywhere; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-header .menu { transition: none; }
+}

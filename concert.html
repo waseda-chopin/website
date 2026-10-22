@@ -2,10 +2,12 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Concert</title>
         <meta name="description" content="コンサート情報">
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/component.css">
+        <link rel="stylesheet" href="css/responsive.css">
     </head>
 
     <body>
@@ -26,12 +28,34 @@
         <div id="footer"></div>
         
         <script>
-            // --- ヘッダーとフッターの読み込み ---
-            fetch("pc-header.html")
-            .then(response => response.text())
-            .then(data => document.querySelector("#header").innerHTML = data);
+            // 画面幅に応じてヘッダーを切り替える。リサイズ中の競合と再取得を防ぐ。
+            let activeHeaderFile = null;
+            let headerRequestSerial = 0;
+            function loadHeader() {
+                const headerFile = window.matchMedia('(max-width: 768px)').matches
+                    ? 'phone-header.html' : 'pc-header.html';
+                if (headerFile === activeHeaderFile) return;
+                activeHeaderFile = headerFile;
+                const serial = ++headerRequestSerial;
+                fetch(headerFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.text();
+                    })
+                    .then(data => {
+                        if (serial !== headerRequestSerial) return;
+                        const header = document.getElementById('header');
+                        if (header) header.innerHTML = data; // GitHub上で管理する固定HTMLだけ
+                    })
+                    .catch(error => {
+                        if (serial === headerRequestSerial) activeHeaderFile = null;
+                        console.error('ヘッダーの読み込みに失敗しました:', error);
+                    });
+            }
+            loadHeader();
+            window.addEventListener('resize', loadHeader);
 
-            fetch("footer.html")
+                        fetch("footer.html")
             .then(response => response.text())
             .then(data => {
                 const footer = document.querySelector("#footer");
@@ -39,83 +63,146 @@
             });
 
             // --- コンサート情報の読み込みと表示 ---
-            fetch("./data/concerts.json")
-            .then(response => response.json())
-            .then(data => {
-                // スプレッドシートの「状態(A列)」が「終了」以外のものを次回、「終了」のものを過去に分ける
-                const nextConcerts = data.filter(c => c.status !== "終了");
-                const pastConcerts = data.filter(c => c.status === "終了");
+            // JSONから取得した文字列はHTMLとして解釈させない。
+            // 外部リンクはHTTPS URLだけを許可する。
+            function safeHttpsUrl(value) {
+                if (typeof value !== "string") return null;
+                const candidate = value.trim();
+                if (!/^https:\/\//i.test(candidate)) return null;
 
-                // 1. 次回の演奏会の表示
-                const nextContainer = document.getElementById("next-concert");
-                if (nextConcerts.length > 0) {
-                    const next = nextConcerts[0]; // リストの一番上を次回とする
-                    let nextHtml = `<h3 style="margin-top: 0; color: #333;">次回の演奏会：${next.name}</h3>`;
-                    
-                    // 場所（「http」から始まるURLが設定されている場合のみリンク化する）
-                    let placeText = next.place || "未定";
-                    if (next.place_link && next.place_link.startsWith("http")) {
-                        placeText = `<a href="${next.place_link}" target="_blank" style="color: #0056b3; text-decoration: underline;">${next.place}</a>`;
+                try {
+                    const parsed = new URL(candidate);
+                    if (parsed.protocol !== "https:" || !parsed.hostname ||
+                        parsed.username || parsed.password) {
+                        return null;
                     }
-                    nextHtml += `<p style="color: #333;"><strong>場所：</strong> ${placeText}</p>`;
-                    
-                    // 時間・日程（スプレッドシートのC列）
-                    nextHtml += `<p style="color: #333;"><strong>時間（日程）：</strong> ${next.date || "未定"}</p>`;
-                    
-                    nextContainer.innerHTML = nextHtml;
+                    return parsed.href;
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            function makeLink(url, label, color) {
+                const a = document.createElement("a");
+                a.href = url;
+                a.target = "_blank";
+                a.rel = "noopener noreferrer";
+                a.style.color = color;
+                a.style.textDecoration = "underline";
+                a.textContent = String(label ?? "");
+                return a;
+            }
+
+            function makeDescription(label, value) {
+                const p = document.createElement("p");
+                p.style.color = "#333";
+                const strong = document.createElement("strong");
+                strong.textContent = label;
+                p.append(strong, document.createTextNode(" "));
+                if (value instanceof Node) {
+                    p.append(value);
                 } else {
-                    // スプレッドシートの2行目が空欄などの場合
-                    nextContainer.innerHTML = `<h3 style="margin-top: 0; color: #333;">次回の演奏会：未定</h3><p style="color: #333;">現在、予定されている演奏会はありません。</p>`;
+                    p.append(document.createTextNode(String(value ?? "")));
+                }
+                return p;
+            }
+
+            fetch("./data/concerts.json")
+            .then(response => {
+                if (!response.ok) throw new Error("コンサート情報の取得に失敗しました");
+                return response.json();
+            })
+            .then(data => {
+                if (!Array.isArray(data)) throw new Error("JSONの形式が正しくありません");
+
+                // 「終了」以外の最初の1件を次回として表示（従来の仕様）。
+                const nextConcerts = data.filter(c => c && c.status !== "終了");
+                const pastConcerts = data.filter(c => c && c.status === "終了");
+
+                // 1. 次回の演奏会
+                const nextContainer = document.getElementById("next-concert");
+                const nextTitle = document.createElement("h3");
+                nextTitle.style.marginTop = "0";
+                nextTitle.style.color = "#333";
+
+                if (nextConcerts.length > 0) {
+                    const next = nextConcerts[0];
+                    nextTitle.textContent = "次回の演奏会：" + String(next.name ?? "");
+
+                    const placeUrl = safeHttpsUrl(next.place_link);
+                    const placeText = next.place || "未定";
+                    const placeDisplay = placeUrl
+                        ? makeLink(placeUrl, next.place, "#0056b3")
+                        : String(placeText);
+
+                    nextContainer.replaceChildren(
+                        nextTitle,
+                        makeDescription("場所：", placeDisplay),
+                        makeDescription("時間（日程）：", next.date || "未定")
+                    );
+                } else {
+                    nextTitle.textContent = "次回の演奏会：未定";
+                    const p = document.createElement("p");
+                    p.style.color = "#333";
+                    p.textContent = "現在、予定されている演奏会はありません。";
+                    nextContainer.replaceChildren(nextTitle, p);
                 }
 
-                // 2. 過去の演奏会（年度ごと）の表示
-                const groupedByYear = {};
-                
+                // 2. 過去の演奏会を年度別にまとめて降順表示
+                const groupedByYear = Object.create(null);
                 pastConcerts.forEach(c => {
-                    // 演奏会名から4桁の数字（年度）を抽出
-                    const match = c.name.match(/(\d{4})/);
+                    const match = String(c.name ?? "").match(/(\d{4})/);
                     const year = match ? match[1] + "年度" : "その他";
-                    
-                    if (!groupedByYear[year]) {
-                        groupedByYear[year] = [];
-                    }
+                    if (!groupedByYear[year]) groupedByYear[year] = [];
                     groupedByYear[year].push(c);
                 });
 
-                // 年度の新しい順（降順）に並び替え（"その他"は一番下に）
                 const sortedYears = Object.keys(groupedByYear).sort((a, b) => {
                     if (a === "その他") return 1;
                     if (b === "その他") return -1;
-                    return parseInt(b) - parseInt(a); // 数値に変換して比較
+                    return parseInt(b, 10) - parseInt(a, 10);
                 });
 
-                // HTMLの生成
                 const pastContainer = document.getElementById("past-concerts");
-                let pastHtml = "";
+                const fragment = document.createDocumentFragment();
 
                 sortedYears.forEach(year => {
-                    // 年度見出し
-                    pastHtml += `<h3 style="border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 30px; color: #333;">${year}</h3>`;
-                    pastHtml += `<ul style="list-style-type: disc; margin-left: 20px; line-height: 1.8; color: #333;">`;
-                    
-                    // その年度の演奏会リスト
+                    const heading = document.createElement("h3");
+                    heading.style.borderBottom = "2px solid #ccc";
+                    heading.style.paddingBottom = "5px";
+                    heading.style.marginTop = "30px";
+                    heading.style.color = "#333";
+                    heading.textContent = year;
+                    fragment.append(heading);
+
+                    const ul = document.createElement("ul");
+                    ul.style.listStyleType = "disc";
+                    ul.style.marginLeft = "20px";
+                    ul.style.lineHeight = "1.8";
+                    ul.style.color = "#333";
+
                     groupedByYear[year].forEach(c => {
-                        // プログラムリンク(F列)があればハイパーリンクに、なければただの文字
-                        if (c.program_link && c.program_link.startsWith("http")) {
-                            pastHtml += `<li style="color: #333;"><a href="${c.program_link}" target="_blank" rel="noopener noreferrer" style="color: #333; text-decoration: underline;">${c.name}</a></li>`;
+                        const li = document.createElement("li");
+                        li.style.color = "#333";
+                        const programUrl = safeHttpsUrl(c.program_link);
+                        if (programUrl) {
+                            li.append(makeLink(programUrl, c.name, "#333"));
                         } else {
-                            pastHtml += `<li style="color: #333;">${c.name}</li>`;
+                            li.textContent = String(c.name ?? "");
                         }
+                        ul.append(li);
                     });
-                    
-                    pastHtml += `</ul>`;
+                    fragment.append(ul);
                 });
 
-                pastContainer.innerHTML = pastHtml;
+                pastContainer.replaceChildren(fragment);
             })
             .catch(error => {
                 console.error("Concertsデータの読み込みに失敗しました:", error);
-                document.getElementById("next-concert").innerHTML = "<p style='color: #333;'>コンサート情報の読み込みに失敗しました。</p>";
+                const p = document.createElement("p");
+                p.style.color = "#333";
+                p.textContent = "コンサート情報の読み込みに失敗しました。";
+                document.getElementById("next-concert").replaceChildren(p);
             });
         </script>
     </body>

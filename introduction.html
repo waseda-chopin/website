@@ -2,10 +2,12 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Introduction</title>
     <meta name="description" content="概要">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/component.css">
+        <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
     <div id="header"></div>
@@ -22,13 +24,45 @@
     <div id="footer"></div>
 
     <script>
-        // ヘッダーの読み込み
-        fetch("pc-header.html")
-            .then((response) => response.text())
-            .then((data) => document.querySelector("#header").innerHTML = data)
-            .catch((error) => console.error("pc-header.html の読み込みに失敗しました:", error));
+        // 外部リンクはHTTP(S)だけ許可する。空欄や危険なURLはリンクにしない。
+        function getSafeHttpUrl(value) {
+            if (typeof value !== "string" || value.trim() === "") return null;
+            try {
+                const url = new URL(value.trim());
+                return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+            } catch (error) {
+                return null;
+            }
+        }
 
-        // フッターの読み込み
+        // 画面幅に応じてヘッダーを切り替える。リサイズ中の競合と再取得を防ぐ。
+            let activeHeaderFile = null;
+            let headerRequestSerial = 0;
+            function loadHeader() {
+                const headerFile = window.matchMedia('(max-width: 768px)').matches
+                    ? 'phone-header.html' : 'pc-header.html';
+                if (headerFile === activeHeaderFile) return;
+                activeHeaderFile = headerFile;
+                const serial = ++headerRequestSerial;
+                fetch(headerFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.text();
+                    })
+                    .then(data => {
+                        if (serial !== headerRequestSerial) return;
+                        const header = document.getElementById('header');
+                        if (header) header.innerHTML = data; // GitHub上で管理する固定HTMLだけ
+                    })
+                    .catch(error => {
+                        if (serial === headerRequestSerial) activeHeaderFile = null;
+                        console.error('ヘッダーの読み込みに失敗しました:', error);
+                    });
+            }
+            loadHeader();
+            window.addEventListener('resize', loadHeader);
+
+                // フッターの読み込み
         fetch("footer.html")
             .then((response) => response.text())
             .then((data) => {
@@ -43,8 +77,13 @@
 
         // Introductionデータの読み込みと反映
         fetch("data/introduction.json")
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error("introduction.json の読み込みに失敗しました。");
+                return response.json();
+            })
             .then(data => {
+                if (!Array.isArray(data)) throw new Error("Introductionのデータ形式が不正です。");
+
                 const treeContainer = document.getElementById("intro-tree");
                 const contentsContainer = document.getElementById("intro-contents");
 
@@ -52,7 +91,8 @@
                     // --- 1. 左側の目次 (<li>) を生成 ---
                     const li = document.createElement("li");
                     const a = document.createElement("a");
-                    a.textContent = item.title;
+                    const title = String(item?.title ?? "");
+                    a.textContent = title;
                     // クリック時に該当セクションへスクロールさせるためのリンク
                     a.href = `#section-${index}`;
                     // 元のCSSにリンクの色設定がない場合を考慮し、スタイルを少し調整
@@ -69,12 +109,18 @@
                     // 見出し部分の生成 (<div class="index">...</div>)
                     const indexDiv = document.createElement("div");
                     indexDiv.className = "index";
-                    indexDiv.innerHTML = `<hr><div class="introindex">${item.title}</div><hr>`;
+                    const headingDiv = document.createElement("div");
+                    headingDiv.className = "introindex";
+                    headingDiv.textContent = title; // JSONの文字列をHTMLとして解釈しない
+                    indexDiv.appendChild(document.createElement("hr"));
+                    indexDiv.appendChild(headingDiv);
+                    indexDiv.appendChild(document.createElement("hr"));
                     sectionDiv.appendChild(indexDiv);
 
                     // 本文の生成 (改行ごとに <p> タグで囲む)
-                    if (item.content) {
-                        const paragraphs = item.content.split('\n');
+                    const content = String(item?.content ?? "");
+                    if (content) {
+                        const paragraphs = content.split('\n');
                         paragraphs.forEach(text => {
                             if (text.trim() !== "") {
                                 const p = document.createElement("p");
@@ -85,12 +131,14 @@
                     }
 
                     // リンクが存在する場合の生成
-                    if (item.link) {
+                    const safeLink = getSafeHttpUrl(item?.link);
+                    if (safeLink) {
                         const linkP = document.createElement("p");
                         const linkA = document.createElement("a");
-                        linkA.href = item.link;
+                        linkA.href = safeLink;
                         linkA.textContent = "詳細はこちら";
                         linkA.target = "_blank"; // 別タブで開く
+                        linkA.rel = "noopener noreferrer";
                         linkP.appendChild(linkA);
                         sectionDiv.appendChild(linkP);
                     }
